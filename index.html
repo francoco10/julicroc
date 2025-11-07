@@ -387,8 +387,6 @@ window.descargarPDF = (index) => {
   doc.rect(0, 0, 420, 80, "F");
 
   doc.setTextColor(0, 0, 0);
-  doc.setFontSize(20);
-  doc.text("JULICROC", 30, 30);
   doc.setFontSize(13);
   doc.text("GM-DISTRIBUCIONES", 30, 43);
   doc.setFontSize(12);
@@ -396,6 +394,10 @@ window.descargarPDF = (index) => {
   doc.setFontSize(10);
   doc.text("gmdistribuciones3@gmail.com", 30, 65);
   doc.text("CUIT: 20-25804000-8  |  +54 3425014152", 30, 78);
+
+  doc.setFontSize(20);
+  doc.setTextColor(200, 0, 0);
+  doc.text("JULICROC", 30, 30);
 
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(12);
