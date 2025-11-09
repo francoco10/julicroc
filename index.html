@@ -469,6 +469,8 @@ window.descargarPDF = (index) => {
     doc.text(p.nombre, 50, y);
     doc.text(`$${p.precio}`, 300, y);
     doc.text(`$${subtotal.toFixed(2)}`, 380, y);
+    doc.setDrawColor(180, 180, 180); // gris suave (opcional)
+    doc.line(20, y + 5, 430, y + 5);
     y += 20;
   });
 
