@@ -31,6 +31,9 @@
     <label class="block mb-2 text-sm font-medium">Dirección</label>
     <input id="direccion" type="text" class="w-full border p-2 rounded mb-4" placeholder="Ej: Calle 123" />
 
+    <label class="block mb-2 text-sm font-medium">CUIT del Cliente</label>
+    <input id="cuit" type="text" class="w-full border p-2 rounded mb-4" placeholder="Ej: xx-xxxxxxxx-x" />
+
     <h3 class="text-lg font-semibold text-green-700 mb-2">Productos</h3>
     <table class="w-full mb-4">
       <thead>
@@ -159,6 +162,7 @@ nuevoPedidoBtn.addEventListener("click", () => {
   // Limpiar los inputs
   document.getElementById('nombre').value = "";
   document.getElementById('direccion').value = "";
+  document.getElementById('cuit').value = "";
 });
 
 const cancelarBtn = document.getElementById('cancelar');
@@ -167,6 +171,20 @@ const agregarProductoBtn = document.getElementById('agregarProducto');
 const tablaProductos = document.getElementById('tablaProductos');
 const pedidosPendientes = document.getElementById('pedidosPendientes');
 const pedidosTerminados = document.getElementById('pedidos-terminados');
+
+cancelarBtn.addEventListener('click', () => {
+  formulario.classList.add('hidden');
+  nuevoPedidoBtn.classList.remove('hidden');
+
+  document.getElementById('nombre').value = '';
+  document.getElementById('direccion').value = '';
+  document.getElementById('cuit').value = '';
+
+  tablaProductos.innerHTML = '';
+  crearFilaProducto();
+  actualizarTotal();
+});
+
 
 let pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
 
@@ -207,17 +225,23 @@ function crearFilaProducto() {
   const eliminarBtn = row.querySelector(".eliminarProducto");
 
   function actualizarPrecio() {
-    const texto = input.value.toLowerCase();
-    const prod = productosBase.find(p => p.nombre.toLowerCase() === texto);
-    if (prod) {
-      const porcentaje = parseFloat(porcentajeSelect.value);
-      const precioCalculado = prod.precio * (1 + porcentaje / 100);
-      precioInput.value = precioCalculado.toFixed(2);
-    } else {
-      precioInput.value = "";
-    }
-    actualizarTotal(); // 👈 SE AGREGA ACÁ
+  const texto = input.value.toLowerCase();
+  const prod = productosBase.find(p => p.nombre.toLowerCase() === texto);
+
+  const cantidad = parseFloat(cantidadInput.value) || 0;
+  const porcentaje = parseFloat(porcentajeSelect.value);
+
+  if (prod) {
+    // Precio total correctamente calculado con cantidad y porcentaje
+    const precioCalculado = (prod.precio * cantidad) * (1 + porcentaje / 100);
+    precioInput.value = precioCalculado.toFixed(2);
+  } else {
+    precioInput.value = "";
   }
+
+  actualizarTotal();
+}
+
 
   input.addEventListener("input", () => {
     const texto = input.value.toLowerCase();
@@ -261,15 +285,14 @@ function crearFilaProducto() {
 
 function actualizarTotal() {
   let total = 0;
-  document.querySelectorAll('.precio-final').forEach((precioInput, i) => {
-    const cantidadInput = document.querySelectorAll('.cantidad-input')[i];
-    const cantidad = parseFloat(cantidadInput.value) || 0;
+  document.querySelectorAll('.precio-final').forEach(precioInput => {
     const precio = parseFloat(precioInput.value) || 0;
-    total += cantidad * precio;
+    total += precio;
   });
 
   document.getElementById('totalPedido').innerText = total.toFixed(2);
 }
+
 
 
 agregarProductoBtn.addEventListener("click", crearFilaProducto);
@@ -278,6 +301,7 @@ agregarProductoBtn.addEventListener("click", crearFilaProducto);
 guardarBtn.addEventListener('click', () => {
   const nombre = document.getElementById('nombre').value.trim();
   const direccion = document.getElementById('direccion').value.trim();
+  const cuit = document.getElementById('cuit').value.trim();
   const fecha = new Date().toLocaleDateString();
 
     // Obtener productos válidos (sin filas vacías)
@@ -289,12 +313,12 @@ guardarBtn.addEventListener('click', () => {
     }))
     .filter(p => p.nombre !== "" && p.cantidad !== "" && p.precio !== "");
 
-  if (!nombre || !direccion || productos.length === 0) {
+  if (!nombre || !direccion || !cuit || productos.length === 0) {
     alert('Por favor completa todos los campos y agrega al menos un producto.');
     return;
   }
 
-  pedidos.push({ nombre, direccion, fecha, productos, terminado: false, numero: numeroRemito });
+  pedidos.push({ nombre, direccion, cuit, fecha, productos, terminado: false, numero: numeroRemito });
   numeroRemito++;
   localStorage.setItem('numeroRemito', numeroRemito);
   localStorage.setItem('pedidos', JSON.stringify(pedidos));
@@ -312,11 +336,13 @@ const renderPedidos = () => {
     const div = document.createElement('div');
     div.className = 'bg-white p-4 rounded-lg shadow mb-3 border-l-4 ' + (pedido.terminado ? 'border-green-500' : 'border-red-500');
 
-    const total = pedido.productos.reduce((sum, p) => sum + (parseFloat(p.precio) * parseFloat(p.cantidad)), 0);
+    const total = pedido.productos.reduce((sum, p) => sum + parseFloat(p.precio), 0);
+
 
     div.innerHTML = `
   <p><strong>Cliente:</strong> ${pedido.nombre}</p>
   <p><strong>Dirección:</strong> ${pedido.direccion}</p>
+  <p><strong>Cuit:</strong> ${pedido.cuit}</p>
   <p><strong>Fecha:</strong> ${pedido.fecha}</p>
 
   <details class="mt-2 mb-2">
@@ -329,7 +355,7 @@ const renderPedidos = () => {
   <p><strong>Total:</strong> $${total.toFixed(2)}</p>
 
   <button onclick="terminarPedido(${index})" class="bg-green-600 text-white px-3 py-1 rounded">Terminar</button>
-  <button onclick="descargarPDF(${index})" class="bg-blue-600 text-white px-3 py-1 rounded">PDF</button>
+  <button onclick="descargarPDF(${index})" class="bg-blue-600 text-white px-3 py-1 rounded">Remito</button>
   <button onclick="editarPedido(${index})" class="bg-yellow-500 text-white px-3 py-1 rounded">Editar</button>
   <button onclick="eliminarPedido(${index})" class="bg-gray-600 text-white px-3 py-1 rounded">Eliminar</button>
 `;
@@ -360,6 +386,7 @@ window.editarPedido = (i) => {
 
   document.getElementById('nombre').value = pedido.nombre;
   document.getElementById('direccion').value = pedido.direccion;
+  document.getElementById('cuit').value = pedido.cuit;
 
   tablaProductos.innerHTML = "";
 
@@ -415,6 +442,7 @@ window.descargarPDF = (index) => {
   doc.setFontSize(12);
   doc.text(`Nombre: ${pedido.nombre}`, 30, 120);
   doc.text(`Dirección: ${pedido.direccion}`, 30, 135);
+  doc.text(`CUIT: ${pedido.cuit}`, 30, 148);
 
   doc.setTextColor(0, 100, 0);
   doc.setFontSize(13);
@@ -427,7 +455,7 @@ window.descargarPDF = (index) => {
 
   let y = 185;
   doc.text("Cant.", 20, y);
-  doc.text("Producto", 50, y);
+  doc.text("Producto", 150, y);
   doc.text("Precio", 300, y);
   doc.text("Subtotal", 380, y);
 
@@ -446,7 +474,7 @@ window.descargarPDF = (index) => {
 
   doc.setFontSize(14);
   doc.setTextColor(200, 0, 0);
-  doc.text(`TOTAL: $${total.toFixed(2)}`, 270, y + 20);
+  doc.text(`TOTAL: $${total.toFixed(2)}`, 325, y + 20);
 
   doc.save(`Remito_${pedido.nombre}.pdf`);
 };
