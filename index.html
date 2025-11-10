@@ -233,6 +233,7 @@ function crearFilaProducto() {
 
   if (prod) {
     // Precio total correctamente calculado con cantidad y porcentaje
+    const porcentaje = parseFloat(porcentajeSelect.value);
     const precioCalculado = (prod.precio * cantidad) * (1 + porcentaje / 100);
     precioInput.value = precioCalculado.toFixed(2);
   } else {
@@ -348,7 +349,13 @@ const renderPedidos = () => {
   <details class="mt-2 mb-2">
     <summary class="cursor-pointer text-sm text-blue-700 underline">Ver productos</summary>
     <ul class="mt-1 text-sm">
-      ${pedido.productos.map(p => `<li>${p.cantidad} x ${p.nombre} — $${p.precio} c/u</li>`).join("")}
+      ${pedido.productos.map(p => {
+    const cantidad = parseFloat(p.cantidad);
+    const totalFila = parseFloat(p.precio);
+    const unitario = totalFila / cantidad;
+    return `<li>${p.cantidad} x ${p.nombre} — $${unitario.toFixed(2)} c/u — Subtotal: $${totalFila.toFixed(2)}</li>`;
+    }).join("")}
+
     </ul>
   </details>
 
@@ -440,9 +447,9 @@ window.descargarPDF = (index) => {
 
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(12);
-  doc.text(`Nombre: ${pedido.nombre}`, 30, 120);
-  doc.text(`Dirección: ${pedido.direccion}`, 30, 135);
-  doc.text(`CUIT: ${pedido.cuit}`, 30, 148);
+  doc.text(`Nombre: ${pedido.nombre}`, 30, 115);
+  doc.text(`Dirección: ${pedido.direccion}`, 30, 130);
+  doc.text(`CUIT: ${pedido.cuit}`, 30, 143);
 
   doc.setTextColor(0, 100, 0);
   doc.setFontSize(13);
@@ -462,17 +469,21 @@ window.descargarPDF = (index) => {
   y += 20;
 
   let total = 0;
-  pedido.productos.forEach(p => {
-    const subtotal = p.cantidad * p.precio;
-    total += subtotal;
-    doc.text(String(p.cantidad), 20, y);
-    doc.text(p.nombre, 50, y);
-    doc.text(`$${p.precio}`, 300, y);
-    doc.text(`$${subtotal.toFixed(2)}`, 380, y);
-    doc.setDrawColor(180, 180, 180); // gris suave (opcional)
-    doc.line(20, y + 5, 430, y + 5);
-    y += 20;
-  });
+pedido.productos.forEach(p => {
+  const cantidad = parseFloat(p.cantidad);
+  const totalFila = parseFloat(p.precio); // este es el total final que guardaste
+  const precioUnitario = totalFila / cantidad; // acá recuperamos el unitario
+
+  const subtotal = precioUnitario * cantidad; // subtotal correcto
+  total += subtotal;
+
+  doc.text(String(cantidad), 20, y);
+  doc.text(p.nombre, 50, y);
+  doc.text(`$${precioUnitario.toFixed(2)}`, 300, y);
+  doc.text(`$${subtotal.toFixed(2)}`, 380, y);
+  y += 20;
+});
+
 
   doc.setFontSize(14);
   doc.setTextColor(200, 0, 0);
