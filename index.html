@@ -107,7 +107,7 @@ const productosBase = [
   { nombre: "Papas fritas 12x250g", precio: 2267.04 },
   { nombre: "Papas fritas 5x1kg", precio: 8214.16 },
   { nombre: "Papas fritas 24x100g PAI", precio: 990.43 },
-  { nombre: "Papas corte americano 16x180g", precio: 860.08 },
+  { nombre: "Papas corte americano 16x80g", precio: 860.08 },
   { nombre: "Papas corte americano 12x270g", precio: 2448.41 },
   { nombre: "Papas corte americano 5x900g", precio: 7803.57 },
   { nombre: "Tornic 24x65gr", precio: 494.52 },
@@ -457,11 +457,11 @@ window.descargarPDF = (index) => {
   doc.setDrawColor(0, 150, 0);
   doc.line(30, 165, 390, 165);
 
-  doc.setFontSize(12);
+  doc.setFontSize(16);
   doc.setTextColor(0, 0, 0);
 
   let y = 185;
-  doc.text("Cant.", 20, y);
+  doc.text("Cant.", 16, y);
   doc.text("Producto", 150, y);
   doc.text("Precio", 300, y);
   doc.text("Subtotal", 380, y);
@@ -477,11 +477,12 @@ pedido.productos.forEach(p => {
   const subtotal = precioUnitario * cantidad; // subtotal correcto
   total += subtotal;
 
+  doc.setFontSize(13);
   doc.text(String(cantidad), 20, y);
   doc.text(p.nombre, 50, y);
   doc.text(`$${precioUnitario.toFixed(2)}`, 300, y);
   doc.text(`$${subtotal.toFixed(2)}`, 380, y);
-  y += 20;
+  y += 13;
 });
 
 
@@ -497,3 +498,4 @@ renderPedidos();
 
 </body>
 </html>
+
