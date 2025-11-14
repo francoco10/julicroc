@@ -477,7 +477,7 @@ pedido.productos.forEach(p => {
   total += subtotal;
 
   // ←——— SALTO DE PÁGINA AUTOMÁTICO ———→
-  if (y > 780) {           // límite de la hoja A4 en px (portrait)
+  if (y > 700) {           // límite de la hoja A4 en px (portrait)
     doc.addPage();
     y = 40;                // reiniciás donde querés que arranque en la nueva página
 
@@ -520,5 +520,6 @@ renderPedidos();
 
 </body>
 </html>
+
 
 
