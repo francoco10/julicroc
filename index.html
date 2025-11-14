@@ -482,7 +482,7 @@ pedido.productos.forEach(p => {
     y = 40;                // reiniciás donde querés que arranque en la nueva página
 
     // Encabezados de columnas en la nueva hoja
-    doc.setFontSize(16);
+    doc.setFontSize(12);
     doc.text("Cant.", 16, y);
     doc.text("Producto", 150, y);
     doc.text("Precio", 300, y);
@@ -491,7 +491,7 @@ pedido.productos.forEach(p => {
   }
 
   // Imprimir fila
-  doc.setFontSize(13);
+  doc.setFontSize(11);
   doc.text(String(cantidad), 20, y);
   doc.text(p.nombre, 50, y);
   doc.text(`$${precioUnitario.toFixed(2)}`, 300, y);
@@ -499,7 +499,7 @@ pedido.productos.forEach(p => {
 
   y += 13; // separación entre renglones
   
-  doc.setFontSize(13);
+  doc.setFontSize(11);
   doc.text(String(cantidad), 20, y);
   doc.text(p.nombre, 50, y);
   doc.text(`$${precioUnitario.toFixed(2)}`, 300, y);
@@ -520,6 +520,7 @@ renderPedidos();
 
 </body>
 </html>
+
 
 
 
