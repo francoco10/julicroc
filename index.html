@@ -473,10 +473,32 @@ pedido.productos.forEach(p => {
   const cantidad = parseFloat(p.cantidad);
   const totalFila = parseFloat(p.precio); // este es el total final que guardaste
   const precioUnitario = totalFila / cantidad; // acá recuperamos el unitario
-
   const subtotal = precioUnitario * cantidad; // subtotal correcto
   total += subtotal;
 
+  // ←——— SALTO DE PÁGINA AUTOMÁTICO ———→
+  if (y > 780) {           // límite de la hoja A4 en px (portrait)
+    doc.addPage();
+    y = 40;                // reiniciás donde querés que arranque en la nueva página
+
+    // Encabezados de columnas en la nueva hoja
+    doc.setFontSize(16);
+    doc.text("Cant.", 16, y);
+    doc.text("Producto", 150, y);
+    doc.text("Precio", 300, y);
+    doc.text("Subtotal", 380, y);
+    y += 20;
+  }
+
+  // Imprimir fila
+  doc.setFontSize(13);
+  doc.text(String(cantidad), 20, y);
+  doc.text(p.nombre, 50, y);
+  doc.text(`$${precioUnitario.toFixed(2)}`, 300, y);
+  doc.text(`$${subtotal.toFixed(2)}`, 380, y);
+
+  y += 13; // separación entre renglones
+  
   doc.setFontSize(13);
   doc.text(String(cantidad), 20, y);
   doc.text(p.nombre, 50, y);
@@ -498,4 +520,5 @@ renderPedidos();
 
 </body>
 </html>
+
 
