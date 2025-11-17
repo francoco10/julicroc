@@ -154,6 +154,8 @@ const formulario = document.getElementById('formulario');
 nuevoPedidoBtn.addEventListener("click", () => {
   formulario.classList.remove("hidden");
   nuevoPedidoBtn.classList.add("hidden");
+  tablaProductos.innerHTML = "";
+
 
   // Limpiar tabla de productos y crear una fila nueva vacía
   tablaProductos.innerHTML = "";
@@ -498,7 +500,7 @@ pedido.productos.forEach(p => {
   doc.text(`$${subtotal.toFixed(2)}`, 380, y);
 
   y += 13; // separación entre renglones
-  
+
 });
 
 
@@ -514,8 +516,3 @@ renderPedidos();
 
 </body>
 </html>
-
-
-
-
-
