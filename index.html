@@ -499,12 +499,6 @@ pedido.productos.forEach(p => {
 
   y += 13; // separación entre renglones
   
-  doc.setFontSize(11);
-  doc.text(String(cantidad), 20, y);
-  doc.text(p.nombre, 50, y);
-  doc.text(`$${precioUnitario.toFixed(2)}`, 300, y);
-  doc.text(`$${subtotal.toFixed(2)}`, 380, y);
-  y += 13;
 });
 
 
@@ -520,6 +514,7 @@ renderPedidos();
 
 </body>
 </html>
+
 
 
 
