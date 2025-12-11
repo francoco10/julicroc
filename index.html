@@ -33,8 +33,21 @@
 
     <label class="block mb-2 text-sm font-medium">CUIT del Cliente</label>
     <input id="cuit" type="text" class="w-full border p-2 rounded mb-4" placeholder="Ej: xx-xxxxxxxx-x" />
-
+    
     <h3 class="text-lg font-semibold text-green-700 mb-2">Productos</h3>
+    
+    <label class="block mb-2 text-sm font-medium">Porcentaje para todos los productos</label>
+    <select id="porcentajeGeneral" class="border p-2 rounded mb-4">
+        <option value="">Seleccionar porcentaje</option>
+        <option value="35">35%</option>
+        <option value="49">49%</option>
+        <option value="15">15%</option>
+        <option value="25">25%</option>
+        <option value="10">10%</option>
+        <option value="7">7%</option>
+    </select>
+
+    
     <table class="w-full mb-4">
       <thead>
         <tr class="text-left text-sm font-medium">
@@ -137,10 +150,10 @@ const productosBase = [
   { nombre: "Mix seco 1kg", precio: 16000 },
   { nombre: "Mix mediterraneo 1kg", precio: 20000 },
   { nombre: "Nuez mariposa 1kg", precio: 19000 },
+  { nombre: "Almendra 1kg", precio: 20000 },
   { nombre: "Almohaditas 1kg", precio: 6000 },
   { nombre: "Almohaditas 2,5kg", precio: 13300 },
   { nombre: "Arandanos 1kg", precio: 15000 },
-  { nombre: "Almendras 1kg", precio: 20000 },
   { nombre: "Copos azucarados 1kg", precio: 4500 },
   { nombre: "Copos azucarados 3,4kg", precio: 13000 },
   { nombre: "Copos sin azucar 1kg", precio: 4500 },
@@ -204,6 +217,15 @@ let numeroRemito = parseInt(localStorage.getItem('numeroRemito') || 1);
 
 /* ------------------- AUTOCOMPLETADO + PORCENTAJE ------------------- */
 function crearFilaProducto() {
+    document.getElementById('porcentajeGeneral').addEventListener('change', () => {
+  document.querySelectorAll('#tablaProductos tr').forEach(fila => {
+    const productoInput = fila.querySelector('.producto-input');
+    const cantidadInput = fila.querySelector('.cantidad-input');
+
+    if (productoInput) productoInput.dispatchEvent(new Event('blur'));
+    if (cantidadInput) cantidadInput.dispatchEvent(new Event('input'));
+  });
+});
   const row = document.createElement("tr");
   row.innerHTML = `
     <td>
@@ -211,11 +233,8 @@ function crearFilaProducto() {
       <div class="suggestions bg-white border rounded shadow hidden"></div>
     </td>
     <td><input type="number" class="border p-1 rounded w-full cantidad-input" placeholder="Cantidad"></td>
-    <td>
-      <select class="border p-1 rounded porcentaje">
-        ${porcentajes.map(p => `<option value="${p}">${p}%</option>`).join("")}
-      </select>
-    </td>
+    <td><span class="porcentaje-label text-sm text-gray-600">%</span></td>
+
     <td><input type="number" class="border p-1 rounded w-full precio-final" placeholder="Precio" readonly></td>
     <td><button class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded eliminarProducto">X</button></td>
   `;
@@ -223,7 +242,6 @@ function crearFilaProducto() {
   const input = row.querySelector(".producto-input");
   const cantidadInput = row.querySelector(".cantidad-input");
   const sugerencias = row.querySelector(".suggestions");
-  const porcentajeSelect = row.querySelector(".porcentaje");
   const precioInput = row.querySelector(".precio-final");
   const eliminarBtn = row.querySelector(".eliminarProducto");
 
@@ -232,12 +250,12 @@ function crearFilaProducto() {
   const prod = productosBase.find(p => p.nombre.toLowerCase() === texto);
 
   const cantidad = parseFloat(cantidadInput.value) || 0;
-  const porcentaje = parseFloat(porcentajeSelect.value);
+
+  // 👇 TOMAMOS EL PORCENTAJE GENERAL
+  const porcentajeGeneral = parseFloat(document.getElementById('porcentajeGeneral').value) || 0;
 
   if (prod) {
-    // Precio total correctamente calculado con cantidad y porcentaje
-    const porcentaje = parseFloat(porcentajeSelect.value);
-    const precioCalculado = (prod.precio * cantidad) * (1 + porcentaje / 100);
+    const precioCalculado = (prod.precio * cantidad) * (1 + porcentajeGeneral / 100);
     precioInput.value = precioCalculado.toFixed(2);
   } else {
     precioInput.value = "";
@@ -245,6 +263,14 @@ function crearFilaProducto() {
 
   actualizarTotal();
 }
+
+
+document.getElementById('porcentajeGeneral').addEventListener('change', () => {
+  document.querySelectorAll('.cantidad-input').forEach((input, i) => {
+    const fila = input.closest('tr');
+    fila.querySelector('.producto-input').dispatchEvent(new Event('input'));
+  });
+});
 
 
   input.addEventListener("input", () => {
@@ -269,10 +295,7 @@ function crearFilaProducto() {
 
   input.addEventListener("blur", actualizarPrecio);
 
-  porcentajeSelect.addEventListener("change", () => {
-    actualizarPrecio();
-    actualizarTotal(); // 👈 SE AGREGA
-  });
+  
 
   cantidadInput.addEventListener("input", () => {
     actualizarPrecio();
@@ -300,6 +323,8 @@ function actualizarTotal() {
 
 
 agregarProductoBtn.addEventListener("click", crearFilaProducto);
+
+
 
 /* ------------------- GUARDAR PEDIDO ------------------- */
 guardarBtn.addEventListener('click', () => {
